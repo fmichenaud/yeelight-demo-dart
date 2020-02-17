@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
-  final String text;
+class SecondPage extends StatelessWidget {
+  final int number;
 
-  HomePage({this.text}) : super();
+  SecondPage({this.number}) : super();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('My text is: $text'),
+        child: Text('My number is: $number'),
       ),
     );
   }
