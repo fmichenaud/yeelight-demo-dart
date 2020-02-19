@@ -13,17 +13,16 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    
-      body: Column(
-        children: <Widget>[
-          Title(),
-          LightBoxContainer(),
-          BlocProvider<DiscoverBloc>(
-            create: (context) => DiscoverBloc(),
-            child: DiscoverButton()),
-        
-        ],
-      )
+      body: BlocProvider<DiscoverBloc>(
+          create: (context) => DiscoverBloc(),
+          child: Column(
+            children: <Widget>[
+              Title(),
+              LightBoxContainer(),
+              DiscoverButton(),
+              DiscoverResults(),
+            ],
+          )),
     );
   }
 }
@@ -31,13 +30,16 @@ class HomePage extends StatelessWidget {
 class Title extends StatelessWidget {
   build(context) {
     return Padding(
-      padding: EdgeInsets.all(20),
-      child: Row(children: <Widget>[
-        Text(
-          'Ampoules disponibles',
-          style: TextStyle(fontFamily: 'OpenSans', fontSize: 18.0, fontWeight: FontWeight.bold),
-        ),
-    ]));
+        padding: EdgeInsets.all(20),
+        child: Row(children: <Widget>[
+          Text(
+            'Ampoules disponibles',
+            style: TextStyle(
+                fontFamily: 'OpenSans',
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold),
+          ),
+        ]));
   }
 }
 
@@ -60,24 +62,23 @@ class LightBlockState extends State<LightBlock> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-    onTap: () => print(this.yeelight.name),
-        child: Container(
+      onTap: () => print(this.yeelight.name),
+      child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(5)),
             border: Border.all(width: 1.0, color: Colors.blueGrey[50]),
           ),
           child: Padding(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              children: <Widget>[
-                Icon(Icons.wb_incandescent, color: Colors.white),
-                Text(
-                  this.yeelight.name,
-                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 14.0),
-                ),
-              ],)
-          )
-      ),
+              padding: EdgeInsets.all(15),
+              child: Column(
+                children: <Widget>[
+                  Icon(Icons.wb_incandescent, color: Colors.white),
+                  Text(
+                    this.yeelight.name,
+                    style: TextStyle(fontFamily: 'OpenSans', fontSize: 14.0),
+                  ),
+                ],
+              ))),
     );
   }
 }
@@ -86,17 +87,26 @@ class LightBoxContainer extends StatelessWidget {
   build(context) {
     List<Widget> listLight = new List<Widget>();
     for (var i = 0; i < 5; i++) {
-      YeelightModel light = new YeelightModel(i.toString(), 'color', '18', 
-      'get_prop set_default set_power toggle set_bright start_cf stop_cf set_scene cron_add cron_get cron_del set_ct_abxset_rgb', 
-      'on', 100, 2, 4000, 16711680, 100, 35, 'Chambre');
+      YeelightModel light = new YeelightModel(
+          i.toString(),
+          'color',
+          '18',
+          'get_prop set_default set_power toggle set_bright start_cf stop_cf set_scene cron_add cron_get cron_del set_ct_abxset_rgb',
+          'on',
+          100,
+          2,
+          4000,
+          16711680,
+          100,
+          35,
+          'Chambre');
       listLight.add(LightBlock(light));
     }
     return Wrap(
-      runSpacing: 20,
-      spacing: 10,
-      direction: Axis.horizontal,
-      children: listLight
-    );
+        runSpacing: 20,
+        spacing: 10,
+        direction: Axis.horizontal,
+        children: listLight);
   }
 }
 
@@ -107,13 +117,22 @@ class DiscoverButton extends StatelessWidget {
     return Column(
       children: <Widget>[
         FloatingActionButton(
-          child: Icon(Icons.refresh),
-          onPressed: () => discoverBloc.add(DiscoverEvent.refresh)
-        ),
-        BlocBuilder<DiscoverBloc, DiscoveryResponse>(builder: (context, yeelightList) {
-          return Container(child: Text('toto'),);
-        },)
+            child: Icon(Icons.refresh),
+            onPressed: () => discoverBloc.add(DiscoverEvent.refresh)),
       ],
     );
+  }
+}
+
+class DiscoverResults extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(child: BlocBuilder<DiscoverBloc, List<DiscoveryResponse>>(
+      builder: (context, yeelightList) {
+        return yeelightList.length > 1 ?
+        Row(children: yeelightList.map((light) => new Text(light.id.toString() + ' / ')).toList())
+        : Text('Aucune ampoule');
+      },
+    ));
   }
 }

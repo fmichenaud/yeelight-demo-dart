@@ -7,16 +7,17 @@ class DiscoverBloc extends Bloc<DiscoverEvent, List<DiscoveryResponse>> {
 
   @override
   Stream<List<DiscoveryResponse>> mapEventToState(DiscoverEvent event) async* {
-    refreshLights();
-    yield state;
+    final post = await refreshLights();
+    yield post;
   }
 
   @override
   List<DiscoveryResponse> get initialState => [];
 
   Future<List<DiscoveryResponse>> refreshLights() async {
-    print("toto");
-    final toto = await Yeelight.discover();
+    Duration timeout = const Duration(milliseconds: 200); // average timeout to discover all lights 
+    final toto = await Yeelight.discover(timeout: timeout);
+    print(toto);
     return toto;
   }
 }
