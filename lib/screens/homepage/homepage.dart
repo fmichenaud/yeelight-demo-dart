@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yeedart/yeedart.dart';
+import 'package:yeelight/blocs/discover_bloc.dart';
+import 'package:yeelight/enums/discover_event.dart';
 import 'package:yeelight/models/yeelight.dart';
 
 class HomePage extends StatelessWidget {
@@ -13,9 +17,13 @@ class HomePage extends StatelessWidget {
       body: Column(
         children: <Widget>[
           Title(),
-          LightBoxContainer()
+          LightBoxContainer(),
+          BlocProvider<DiscoverBloc>(
+            create: (context) => DiscoverBloc(),
+            child: DiscoverButton()),
+        
         ],
-        )
+      )
     );
   }
 }
@@ -51,22 +59,25 @@ class LightBlockState extends State<LightBlock> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-        border: Border.all(width: 1.0, color: Colors.blueGrey[50]),
+    return InkWell(
+    onTap: () => print(this.yeelight.name),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            border: Border.all(width: 1.0, color: Colors.blueGrey[50]),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(15),
+            child: Column(
+              children: <Widget>[
+                Icon(Icons.wb_incandescent, color: Colors.white),
+                Text(
+                  this.yeelight.name,
+                  style: TextStyle(fontFamily: 'OpenSans', fontSize: 14.0),
+                ),
+              ],)
+          )
       ),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          children: <Widget>[
-            Icon(Icons.wb_incandescent, color: Colors.white),
-            Text(
-              this.yeelight.name,
-              style: TextStyle(fontFamily: 'OpenSans', fontSize: 14.0),
-            ),
-          ],)
-      )
     );
   }
 }
@@ -85,6 +96,24 @@ class LightBoxContainer extends StatelessWidget {
       spacing: 10,
       direction: Axis.horizontal,
       children: listLight
+    );
+  }
+}
+
+class DiscoverButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final DiscoverBloc discoverBloc = BlocProvider.of<DiscoverBloc>(context);
+    return Column(
+      children: <Widget>[
+        FloatingActionButton(
+          child: Icon(Icons.refresh),
+          onPressed: () => discoverBloc.add(DiscoverEvent.refresh)
+        ),
+        BlocBuilder<DiscoverBloc, DiscoveryResponse>(builder: (context, yeelightList) {
+          return Container(child: Text('toto'),);
+        },)
+      ],
     );
   }
 }

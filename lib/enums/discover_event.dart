@@ -1,0 +1,1 @@
+enum DiscoverEvent { refresh }
