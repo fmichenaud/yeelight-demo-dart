@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:yeelight/models/yeelight.dart';
+import 'dart:async';
 
-class HomePage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yeedart/yeedart.dart';
+import 'package:yeelight/blocs/blocs.dart';
+import 'package:yeelight/blocs/discover_bloc.dart';
+
+/* class HomePage extends StatelessWidget {
   final String text;
 
   HomePage({this.text}) : super();
@@ -9,82 +14,84 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    
-      body: Column(
-        children: <Widget>[
-          Title(),
-          LightBoxContainer()
-        ],
-        )
+      body: BlocProvider<DiscoverBloc>(
+          create: (context) => DiscoverBloc(),
+          child: Column(
+            children: <Widget>[
+              Title(),
+              LightBoxContainer(),
+              DiscoverButton(),
+              DiscoverResults(),
+            ],
+          )),
     );
   }
+} */
+
+class HomePage extends StatefulWidget {
+  State<HomePage> createState() => _DiscoverState();
 }
 
-class Title extends StatelessWidget {
-  build(context) {
-    return Padding(
-      padding: EdgeInsets.all(20),
-      child: Row(children: <Widget>[
-        Text(
-          'Ampoules disponibles',
-          style: TextStyle(fontFamily: 'OpenSans', fontSize: 18.0, fontWeight: FontWeight.bold),
-        ),
-    ]));
-  }
-}
-
-class LightBlock extends StatefulWidget {
-  final YeelightModel yeelight;
-
-  LightBlock(this.yeelight);
+class _DiscoverState extends State<HomePage> {
+  Completer<void> _refreshCompleter;
 
   @override
-  LightBlockState createState() => new LightBlockState(yeelight);
-}
-
-class LightBlockState extends State<LightBlock> {
-  YeelightModel yeelight;
-
-  LightBlockState(YeelightModel yeelight) {
-    this.yeelight = yeelight;
+  void initState() {
+    super.initState();
+    _refreshCompleter = Completer<void>();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-        border: Border.all(width: 1.0, color: Colors.blueGrey[50]),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          children: <Widget>[
-            Icon(Icons.wb_incandescent, color: Colors.white),
-            Text(
-              this.yeelight.name,
-              style: TextStyle(fontFamily: 'OpenSans', fontSize: 14.0),
-            ),
-          ],)
-      )
-    );
-  }
-}
-
-class LightBoxContainer extends StatelessWidget {
-  build(context) {
-    List<Widget> listLight = new List<Widget>();
-    for (var i = 0; i < 5; i++) {
-      YeelightModel light = new YeelightModel(i.toString(), 'color', '18', 
-      'get_prop set_default set_power toggle set_bright start_cf stop_cf set_scene cron_add cron_get cron_del set_ct_abxset_rgb', 
-      'on', 100, 2, 4000, 16711680, 100, 35, 'Chambre');
-      listLight.add(LightBlock(light));
-    }
-    return Wrap(
-      runSpacing: 20,
-      spacing: 10,
-      direction: Axis.horizontal,
-      children: listLight
-    );
+    return Scaffold(
+        appBar: AppBar(title: Text('Test light')),
+        body: Container(child: BlocBuilder<DiscoverBloc, DiscoverState>(
+            builder: (context, themeState) {
+          return Container(
+            child: RefreshIndicator(
+                onRefresh: () {
+                  BlocProvider.of<DiscoverBloc>(context).add(
+                    FetchLights(),
+                  );
+                  return _refreshCompleter.future;
+                },
+                child: Container(
+                  child: Center(
+                    child: BlocConsumer<DiscoverBloc, DiscoverState>(
+                        listener: (context, state) {
+                      if (state is DiscoverLoaded || state is DiscoverError) {
+                        _refreshCompleter?.complete();
+                        _refreshCompleter = Completer();
+                      }
+                    }, builder: (context, state) {
+                      if (state is DiscoverLoading) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (state is DiscoverLoaded) {
+                        final discoverResponse =
+                            state.discoveryResponse.first.id.toString();
+                        print(discoverResponse);
+                        return ListView(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 100.0),
+                              child: Center(
+                                child: Text(discoverResponse),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      if (state is DiscoverError) {
+                        return Text('Error ! Pull To Refresh');
+                      }
+                      return Container(
+                        child: Text('Empty List ! Pull To Refresh'),
+                      );
+                    }),
+                  )
+                )),
+          );
+        })));
   }
 }
