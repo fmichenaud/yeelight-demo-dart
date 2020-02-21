@@ -47,7 +47,7 @@ class _DiscoverState extends State<HomePage> {
         appBar: AppBar(title: Text('Test light')),
         body: Container(child: BlocBuilder<DiscoverBloc, DiscoverState>(
             builder: (context, themeState) {
-          return Center(
+          return Container(
             child: RefreshIndicator(
                 onRefresh: () {
                   BlocProvider.of<DiscoverBloc>(context).add(
@@ -55,8 +55,8 @@ class _DiscoverState extends State<HomePage> {
                   );
                   return _refreshCompleter.future;
                 },
-                child: ListView(
-                  children: [Center(
+                child: Container(
+                  child: Center(
                     child: BlocConsumer<DiscoverBloc, DiscoverState>(
                         listener: (context, state) {
                       if (state is DiscoverLoaded || state is DiscoverError) {
@@ -70,13 +70,13 @@ class _DiscoverState extends State<HomePage> {
                       if (state is DiscoverLoaded) {
                         final discoverResponse =
                             state.discoveryResponse.first.id.toString();
-                        print(state.discoveryResponse);
+                        print(discoverResponse);
                         return ListView(
-                          children: <Widget>[
+                          children: [
                             Padding(
                               padding: EdgeInsets.only(top: 100.0),
                               child: Center(
-                                child: Text(discoverResponse.toString()),
+                                child: Text(discoverResponse),
                               ),
                             ),
                           ],
@@ -89,7 +89,7 @@ class _DiscoverState extends State<HomePage> {
                         child: Text('Empty List ! Pull To Refresh'),
                       );
                     }),
-                  )]
+                  )
                 )),
           );
         })));
