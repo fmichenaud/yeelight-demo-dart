@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:color/color.dart' as ColorPkg;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yeedart/yeedart.dart';
@@ -68,26 +69,48 @@ class _DiscoverState extends State<HomePage> {
                         return Center(child: CircularProgressIndicator());
                       }
                       if (state is DiscoverLoaded) {
+                        List<Widget> list = new List<Widget>();
+                        for (var i = 0; i < state.discoveryResponse.length; i++) {
+                          list.add(
+                            new Padding(
+                              padding: EdgeInsets.all(10),
+                              child: 
+                              Container(
+                                child: Center(child: Text('Couleur : ' + state.discoveryResponse[i].rgb.toString())),
+                              decoration: new BoxDecoration(color: Color(int.parse(state.discoveryResponse[i].rgb.toString().substring(1, 6), radix: 16) + 0xFF000000)
+                              
+                            )
+                          )));
+                        }
                         final discoverResponse =
                             state.discoveryResponse.first.id.toString();
                         print(discoverResponse);
+                        return ListView(
+                          children: list
+                        );
+                      }
+                      if (state is DiscoverError) {
                         return ListView(
                           children: [
                             Padding(
                               padding: EdgeInsets.only(top: 100.0),
                               child: Center(
-                                child: Text(discoverResponse),
+                                child: Text('Error ! pull to refresh'),
                               ),
                             ),
                           ],
                         );
                       }
-                      if (state is DiscoverError) {
-                        return Text('Error ! Pull To Refresh');
-                      }
-                      return Container(
-                        child: Text('Empty List ! Pull To Refresh'),
-                      );
+                        return ListView(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 100.0),
+                              child: Center(
+                                child: Text('Empty ! pull to refresh'),
+                              ),
+                            ),
+                          ],
+                        );
                     }),
                   )
                 )),
