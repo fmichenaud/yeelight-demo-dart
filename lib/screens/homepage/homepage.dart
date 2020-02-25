@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yeedart/yeedart.dart';
 import 'package:yeelight/blocs/blocs.dart';
 import 'package:yeelight/blocs/discover_bloc.dart';
+import 'package:yeelight/screens/simplebulb/simplebulb.dart';
 
 /* class HomePage extends StatelessWidget {
   final String text;
@@ -76,8 +77,8 @@ class _DiscoverState extends State<HomePage> {
                               padding: EdgeInsets.all(10),
                               child: 
                               Container(
-                                child: Center(child: Text('Couleur : ' + state.discoveryResponse[i].rgb.toString())),
-                              decoration: new BoxDecoration(color: Color(int.parse(state.discoveryResponse[i].rgb.toString().substring(1, 6), radix: 16) + 0xFF000000)
+                                child: Center(child: SimpleBulb(bulb: state.discoveryResponse[i])),
+                              decoration: new BoxDecoration(color: Color(state.discoveryResponse[i].rgb)
                               
                             )
                           )));
